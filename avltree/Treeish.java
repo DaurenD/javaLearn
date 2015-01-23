@@ -1,4 +1,4 @@
-package AVLTree;
+package learnJava.avltree;
 
 
 import java.util.List;

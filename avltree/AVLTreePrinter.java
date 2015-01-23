@@ -1,4 +1,5 @@
-package AVLTree;
+package learnJava.avltree;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -9,7 +10,8 @@ public class AVLTreePrinter {
             System.out.println("Empty tree");
             return;
         }
-        printLayers(top.asList(), top.getHeight(), null);
+        int height = top.getHeight();
+        printLayers(top.asList(), height, null);
     }
 
     private static void printLayers(List<ValueContainer> vertices, int height, Set<ValueContainer> parents) {

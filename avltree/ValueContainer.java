@@ -1,4 +1,4 @@
-package AVLTree;
+package learnJava.avltree;
 
 import java.util.List;
 
@@ -8,6 +8,16 @@ public interface ValueContainer {
     ValueContainer getParent();
 
     ValueContainer getLeft();
+
+    ValueContainer getRight();
+
+    void setParent(ValueContainer parent);
+
+    void setLeft(ValueContainer left);
+
+    void setRight(ValueContainer right);
+
+    void setValue(Integer value);
 
     int getHeight();
 
@@ -25,5 +35,4 @@ public interface ValueContainer {
     boolean isLeft();
 
     List<ValueContainer> asList();
-
 }

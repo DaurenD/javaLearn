@@ -1,4 +1,4 @@
-package AVLTree;
+package learnJava.avltree;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,15 +9,28 @@ import java.util.List;
 public class AVLTree implements Treeish{
     public static void main(String[] args) {
         AVLTree tree = new AVLTree();
-        for (int i = 0; i < 10; i++) {
+
+        for (int i = 1; i <= 22; i++) {
             tree.add(i);
         }
-
-        System.out.println(tree.top.right.right.right.toString());
-        System.out.println(tree.top.getValue());
-        System.out.println(tree.top.getHeight());
         AVLTreePrinter.printTree(tree.top);
+        System.out.println("removing " + 9);
+        tree.remove(9);
+        AVLTreePrinter.printTree(tree.top);
+        System.out.println("removing " + 13);
+        tree.remove(13);
+        AVLTreePrinter.printTree(tree.top);
+        System.out.println("removing " + 14);
+        tree.remove(14);
+        AVLTreePrinter.printTree(tree.top);
+        System.out.println("removing " + 15);
+        tree.remove(15);
+        AVLTreePrinter.printTree(tree.top);
+
+        System.out.println(tree.top.right.right);
     }
+
+
 
     private Node top = new Node();
 
@@ -30,7 +43,19 @@ public class AVLTree implements Treeish{
         Node placeToAdd = findPlace(i);
         placeToAdd.setValue(i);
 
+        updateHeights(placeToAdd);
         balance(placeToAdd);
+    }
+
+    private void updateHeights(Node node) {
+        while (node != null && node.parent != null) {
+            if (node.isLeft()) {
+                node.parent.leftHeight = node.getHeight();
+            } else {
+                node.parent.rightHeight = node.getHeight();
+            }
+            node = node.parent;
+        }
     }
 
     private void balance(Node last) {
@@ -45,7 +70,7 @@ public class AVLTree implements Treeish{
     }
 
     private void rotate(Node last, Node unblncd) {
-        if (last.getLeftHeight() > last.getRightHeight()) {
+        if (unblncd.leftHeight > unblncd.rightHeight) {
             rotateLeft(last, unblncd);
         } else {
             rotateRight(last, unblncd);
@@ -58,13 +83,11 @@ public class AVLTree implements Treeish{
         }
 
         Node pivot = unblncd.right;
-
         //setting parent
         if (unblncd.parent == null) {
             top = pivot;
             pivot.parent = null;
         } else {
-            pivot.parent = unblncd.parent;
             if (unblncd.isLeft()) {
                 unblncd.parent.setLeft(pivot);
             } else {
@@ -74,6 +97,8 @@ public class AVLTree implements Treeish{
         //setting children
         unblncd.setRight(pivot.left);
         pivot.setLeft(unblncd);
+
+        pivot.updateHeights();
     }
 
     private void rotateLeft(Node last, Node unblncd) {
@@ -82,19 +107,21 @@ public class AVLTree implements Treeish{
         }
 
         Node pivot = unblncd.left;
-        unblncd.setLeft(pivot.right);
-        pivot.setRight(unblncd);
 
         if (unblncd.parent == null) {
             top = pivot;
+            pivot.parent = null;
         } else {
-            pivot.parent = unblncd.parent;
             if (unblncd.isLeft()) {
                 unblncd.parent.setLeft(pivot);
             } else {
                 unblncd.parent.setRight(pivot);
             }
         }
+        unblncd.setLeft(pivot.right);
+        pivot.setRight(unblncd);
+
+        top.updateHeights();
     }
 
     private Node findPlace(Integer value) {
@@ -123,29 +150,66 @@ public class AVLTree implements Treeish{
             return;
         }
 
-        if (toRemove.left.isEmpty()) {
-            //replace toRemove with right
-            replace(toRemove, toRemove.right);
+        Node parent;
+        //if toRemove located on the edge or
+        if (toRemove.left.isEmpty() && toRemove.right.isEmpty()) {
+            parent = removeEdge(toRemove);
         } else {
-            //find max in left subtree
-            //and this node with max value can only have left child. It can be empty or not
+            Node newNode = getMax(toRemove.left);
 
-            Node toReplace = getMax(toRemove.left);
-
-            replace(toRemove, toReplace);
-            if (!toReplace.left.isEmpty()) {
-                replace(toReplace, toReplace.left);
+            if (newNode.isEmpty()) {
+                parent = removeWithRight(toRemove);
+            } else {
+                parent = removeNode(toRemove, newNode);
             }
         }
 
+        updateHeights(parent);
+        balance(parent);
     }
 
-    private void replace(Node toReplace, Node node) {
+    private Node removeEdge(Node toRemove) {
+        if (toRemove.parent != null) {
+            if (toRemove.isLeft()) {
+                toRemove.parent.setLeft(new Node());
+            } else {
+                toRemove.parent.setRight(new Node());
+            }
 
+        } else {
+            top = new Node();
+        }
+        return toRemove.parent;
+    }
+
+    private Node removeWithRight(Node toRemove) {
+        Node rightChild = toRemove.right;
+        if (toRemove.parent != null) {
+            if (toRemove.isLeft()) {
+                toRemove.parent.setLeft(rightChild);
+            }else {
+                toRemove.parent.setRight(rightChild);
+            }
+        }
+
+        return toRemove.parent;
+    }
+
+    private Node removeNode(Node toRemove, Node newNode) {
+        Node left = newNode.left;
+        //replace values
+        toRemove.value = newNode.value;
+        if (newNode.isLeft()) {
+            newNode.parent.setLeft(left);
+        }else {
+            newNode.parent.setRight(left);
+        }
+
+        return newNode.parent;
     }
 
     private Node getMax(Node left) {
-        while (!left.right.isEmpty()) {
+        while (!left.isEmpty() && !left.right.isEmpty()) {
             left = left.right;
         }
 
@@ -154,7 +218,8 @@ public class AVLTree implements Treeish{
 
     @Override
     public boolean contains(Integer i) {
-        return false;
+        Node node = findPlace(i);
+        return !node.isEmpty() && node.value.equals(i);
     }
 
     @Override
@@ -169,99 +234,130 @@ public class AVLTree implements Treeish{
 
     @Override
     public void updateAllHeights() {
-
+        top.updateHeights();
     }
 
-    private class Node implements ValueContainer {
-        private Integer value;
 
-        private Node parent;
-        private Node left;
-        private Node right;
+}
+class Node implements ValueContainer {
+     Integer value;
+
+     Node parent;
+    Node left;
+    Node right;
+
+    int leftHeight;
+    int rightHeight;
 
 
+    public void setValue(Integer value) {
+        this.value = value;
+        setLeft(new Node());
+        setRight(new Node());
+    }
 
-        private void setValue(Integer value) {
-            this.value = value;
-            setLeft(new Node());
-            setRight(new Node());
-        }
-
-        private void setRight(ValueContainer right) {
+    public void setRight(ValueContainer right) {
+        if (right != null) {
             this.right = (Node) right;
             ((Node) right).parent = this;
-        }
-
-        private void setLeft(ValueContainer left) {
-            this.left = (Node) left;
-            ((Node) left).parent = this;
-        }
-        @Override
-        public Integer getValue() {
-            return value;
-        }
-
-        @Override
-        public ValueContainer getParent() {
-            return parent;
-        }
-
-        @Override
-        public ValueContainer getLeft() {
-            return left;
-        }
-
-        @Override
-        public int getHeight() {
-            int leftHeight = (left == null || left.isEmpty()) ? 0 : left.getHeight();
-            int rightHeight = (right == null || right.isEmpty()) ? 0 : right.getHeight();
-            return 1 + (leftHeight > rightHeight? leftHeight : rightHeight);
-        }
-
-        @Override
-        public int getLeftHeight() {
-            return left.getHeight();
-        }
-
-        @Override
-        public int getRightHeight() {
-            return right.getHeight();
-        }
-
-        @Override
-        public boolean isBalanced() {
-            return Math.abs(getLeftHeight() - getRightHeight()) < 2;
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return value == null;
-        }
-
-        @Override
-        public boolean isLeft() {
-            return (parent != null) && parent.left.equals(this);
-        }
-
-        @Override
-        public List<ValueContainer> asList() {
-            if (isEmpty()) {
-                return new ArrayList<ValueContainer>();
-            }
-            List<ValueContainer> list = (left != null) ? left.asList() : new ArrayList<ValueContainer>();
-
-            list.add(this);
-
-            if (right != null)
-                list.addAll(right.asList());
-            return list;
-        }
-
-        @Override
-        public String toString() {
-            return isEmpty()
-                    ? "empty"
-                    : value + (isLeft() ? " (-" : " (") + getHeight() + (!isLeft() ? "-)" : ")") + " -> " + (parent != null ? parent : "top");
+        } else {
+            setRight(new Node());
         }
     }
+
+    public void setLeft(ValueContainer left) {
+        if (left != null) {
+            this.left = (Node) left;
+            ((Node) left).parent = this;
+        } else {
+            setLeft(new Node());
+        }
+    }
+    @Override
+    public Integer getValue() {
+        return value;
+    }
+
+    @Override
+    public ValueContainer getParent() {
+        return parent;
+    }
+
+    @Override
+    public ValueContainer getLeft() {
+        return left;
+    }
+
+    @Override
+    public ValueContainer getRight() {
+        return null;
+    }
+
+    @Override
+    public void setParent(ValueContainer parent) {
+
+    }
+
+    @Override
+    public int getHeight() {
+        return isEmpty() ? 0 : 1 + (leftHeight > rightHeight ? leftHeight : rightHeight);
+    }
+
+    public void updateHeights() {
+        if (isEmpty()) return;
+
+        right.updateHeights();
+        left.updateHeights();
+
+        rightHeight = right.getHeight();
+        leftHeight = left.getHeight();
+    }
+
+    @Override
+    public int getLeftHeight() {
+        return left.getHeight();
+    }
+
+    @Override
+    public int getRightHeight() {
+        return right.getHeight();
+    }
+
+    @Override
+    public boolean isBalanced() {
+        return Math.abs(leftHeight - rightHeight) < 2;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return value == null;
+    }
+
+    @Override
+    public boolean isLeft() {
+        return (parent != null) && parent.left.equals(this);
+    }
+
+    @Override
+    public List<ValueContainer> asList() {
+        if (isEmpty()) {
+            return new ArrayList<ValueContainer>();
+        }
+        List<ValueContainer> list = (left != null) ? left.asList() : new ArrayList<ValueContainer>();
+
+        list.add(this);
+
+        if (right != null){
+            list.addAll(right.asList());
+        }
+        return list;
+    }
+
+    @Override
+    public String toString() {
+        return isEmpty()
+                ? "empty"
+                : value + (isLeft() ? " (-" : " (") + getHeight() + (!isLeft() ? "-)" : ")") + " -> " + (parent != null ? parent : "top");
+    }
+
 }

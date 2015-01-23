@@ -1,16 +1,17 @@
-package AVLTree;
+package learnJava.avltree;
 
-/*import org.junit.Assert;
+
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.List;*/
+import java.util.List;
 
 public class AVLTreeTest {
-/*
 
-    */
-/*@Test
+
+
+@Test
     public void testNull() {
         Treeish tree = getIntegerAVLTree();
         tree.add(1);
@@ -256,14 +257,11 @@ public class AVLTreeTest {
     }
 
     private Treeish getIntegerAVLTree() {
-        */
-/*
-        INSERT YOUR CODE HERE
-         *//*
+
 
         return new AVLTree();
     }
-*/
+
 
 }
 
