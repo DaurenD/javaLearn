@@ -1,4 +1,4 @@
-package hashtable;
+package learnJava.hashmap;
 
 
 public class AssosiativeArray {
@@ -35,8 +35,7 @@ public class AssosiativeArray {
                 }
 
                 if (curr.next == null) {
-                    curr.next = new HashNode();
-                    curr.next.setValue(value);
+                    curr.next = new HashNode(key, value);
                     break;
                 }
                 curr = curr.next;
@@ -129,8 +128,8 @@ public class AssosiativeArray {
     public static void main(String[] args) {
         AssosiativeArray hashmap = new AssosiativeArray();
 
-        hashmap.put("Almas", "123-456-789");
-        hashmap.put("Almas", "789-123-456");
+        hashmap.put("Arman", "123-456-789");
+        hashmap.put("Ruslan", "789-123-456");
         hashmap.put("Dauren", "156-156-143");
         for (HashNode aBucket : hashmap.bucket) {
             if (aBucket != null) {

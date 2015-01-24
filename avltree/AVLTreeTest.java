@@ -147,7 +147,7 @@ public class AVLTreeTest {
 
     @Test
     public void testRemoveTrickyCase() {
-        processDeleteTest(22, new int[]{9, 15, 13, 14});
+            processDeleteTest(22, new int[]{9, 15, 13, 14});
     }
 
     @Test
