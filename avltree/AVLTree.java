@@ -14,20 +14,9 @@ public class AVLTree implements Treeish{
             tree.add(i);
         }
         AVLTreePrinter.printTree(tree.top);
-        System.out.println("removing " + 9);
         tree.remove(9);
         AVLTreePrinter.printTree(tree.top);
-        System.out.println("removing " + 13);
-        tree.remove(13);
-        AVLTreePrinter.printTree(tree.top);
-        System.out.println("removing " + 14);
-        tree.remove(14);
-        AVLTreePrinter.printTree(tree.top);
-        System.out.println("removing " + 15);
-        tree.remove(15);
-        AVLTreePrinter.printTree(tree.top);
 
-        System.out.println(tree.top.right.right);
     }
 
 
@@ -102,10 +91,16 @@ public class AVLTree implements Treeish{
     }
 
     private void rotateLeft(Node last, Node unblncd) {
-        if (!last.isLeft()) {
-            rotateRight(last, unblncd.left);
+        if (!last.equals(unblncd)) {
+            if (!last.isLeft()) {
+                rotateRight(last, unblncd.left);
+            }
+        } else {
+            if (!unblncd.left.right.isLeft()) {
+                rotateRight(unblncd.left.right, unblncd.left);
+            }
         }
-
+        System.out.println();
         Node pivot = unblncd.left;
 
         if (unblncd.parent == null) {
@@ -121,7 +116,7 @@ public class AVLTree implements Treeish{
         unblncd.setLeft(pivot.right);
         pivot.setRight(unblncd);
 
-        top.updateHeights();
+        pivot.updateHeights();
     }
 
     private Node findPlace(Integer value) {
@@ -151,6 +146,7 @@ public class AVLTree implements Treeish{
         }
 
         Node parent;
+
         //if toRemove located on the edge or
         if (toRemove.left.isEmpty() && toRemove.right.isEmpty()) {
             parent = removeEdge(toRemove);
@@ -163,23 +159,24 @@ public class AVLTree implements Treeish{
                 parent = removeNode(toRemove, newNode);
             }
         }
-
-        updateHeights(parent);
+        updateAllHeights();
+//        updateHeights(parent);
         balance(parent);
     }
 
     private Node removeEdge(Node toRemove) {
-        if (toRemove.parent != null) {
-            if (toRemove.isLeft()) {
-                toRemove.parent.setLeft(new Node());
-            } else {
-                toRemove.parent.setRight(new Node());
-            }
-
-        } else {
+        if (toRemove == top) {
             top = new Node();
+            return top;
         }
-        return toRemove.parent;
+        Node parent = toRemove.parent;
+        if (toRemove.isLeft()) {
+            parent.setLeft(new Node());
+        } else {
+            parent.setRight(new Node());
+        }
+        toRemove.parent = null;
+        return parent;
     }
 
     private Node removeWithRight(Node toRemove) {
@@ -311,6 +308,7 @@ class Node implements ValueContainer {
 
         rightHeight = right.getHeight();
         leftHeight = left.getHeight();
+
     }
 
     @Override
